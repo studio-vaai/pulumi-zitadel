@@ -4,8 +4,9 @@ The Zitadel Resource Provider lets you manage [Zitadel](https://zitadel.com/) re
 
 This is a fork of [pulumiverse/pulumi-zitadel](https://github.com/pulumiverse/pulumi-zitadel) that bridges
 [terraform-provider-zitadel](https://github.com/zitadel/terraform-provider-zitadel) v3.8.7. The Node.js SDK is
-published as `@studio-vaai/pulumi-zitadel`, and the provider plugin is downloaded from this repository's
-GitHub releases. The other SDKs keep their upstream package names.
+named `@studio-vaai/pulumi-zitadel`. It and the provider plugin are attached to this repository's
+[GitHub releases](https://github.com/studio-vaai/pulumi-zitadel/releases); neither is published to a package
+registry. The other SDKs keep their upstream package names and are not released from this fork.
 
 ## Installing
 
@@ -13,17 +14,13 @@ This package is available for several languages/platforms:
 
 ### Node.js (JavaScript/TypeScript)
 
-To use from JavaScript or TypeScript in Node.js, install using either `npm`:
+To use from JavaScript or TypeScript in Node.js, install the SDK from a release, for example with `npm`:
 
 ```bash
-npm install @studio-vaai/pulumi-zitadel
+npm install https://github.com/studio-vaai/pulumi-zitadel/releases/download/v0.3.0/studio-vaai-pulumi-zitadel-0.3.0.tgz
 ```
 
-or `yarn`:
-
-```bash
-yarn add @studio-vaai/pulumi-zitadel
-```
+Pulumi downloads the matching provider plugin from the same release on first use.
 
 ### Python
 

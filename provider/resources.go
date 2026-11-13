@@ -15,14 +15,16 @@
 package zitadel
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 
 	// The linter requires unnamed imports to have a doc comment
 	_ "embed"
 
-	"github.com/zitadel/terraform-provider-zitadel/zitadel"
+	"github.com/zitadel/terraform-provider-zitadel/v2/zitadel"
 
+	pfbridge "github.com/pulumi/pulumi-terraform-bridge/v3/pkg/pf/tfbridge"
 	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfbridge"
 	tks "github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfbridge/tokens"
 	shim "github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfshim"
@@ -54,13 +56,20 @@ var metadata []byte
 
 // Provider returns additional overlaid schema and metadata associated with the provider..
 func Provider() tfbridge.ProviderInfo {
-	// Instantiate the Terraform provider
-	p := shimv2.NewProvider(zitadel.Provider())
+	// Instantiate the Terraform provider. Upstream serves most resources from a
+	// terraform-plugin-sdk/v2 provider and the message texts, login texts and similar
+	// from a terraform-plugin-framework provider; mux both so every resource is bridged.
+	p := pfbridge.MuxShimWithDisjointgPF(
+		context.Background(),
+		shimv2.NewProvider(zitadel.Provider()),
+		zitadel.NewProviderPV6(),
+	)
 
 	// Create a Pulumi provider mapping
 	prov := tfbridge.ProviderInfo{
-		P:    p,
-		Name: "zitadel",
+		P:       p,
+		Name:    "zitadel",
+		Version: version.Version,
 		// DisplayName is a way to be able to change the casing of the provider
 		// name when being displayed on the Pulumi registry
 		DisplayName: "",
@@ -90,7 +99,9 @@ func Provider() tfbridge.ProviderInfo {
 		// The GitHub Org for the provider - defaults to `terraform-providers`. Note that this
 		// should match the TF provider module's require directive, not any replace directives.
 		GitHubOrg: "zitadel",
-		Config:    map[string]*tfbridge.SchemaInfo{
+		// The upstream Go module path carries a /v2 suffix (independent of its release tags).
+		TFProviderModuleVersion: "v2",
+		Config:                  map[string]*tfbridge.SchemaInfo{
 			// Add any required configuration here, or remove the example below if
 			// no additional points are required.
 			// "region": {
